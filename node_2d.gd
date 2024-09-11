@@ -2,8 +2,8 @@ extends Node2D
 
 @export var Noise_height_text : NoiseTexture2D
 var noise : Noise
-var width : int = 100
-var height : int = 100
+var width : int = 1000
+var height : int = 1000
 var noise_val_arr = []
 @onready var Tileemap = $TileMapLayer
 var sourceid = 0 #I dont know what this is yet
