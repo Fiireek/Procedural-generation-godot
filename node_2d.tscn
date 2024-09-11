@@ -1,0 +1,57 @@
+[gd_scene load_steps=5 format=3 uid="uid://diulgo2kk78xx"]
+
+[ext_resource type="TileSet" uid="uid://dplqa4dfregvv" path="res://Tileset.tres" id="2_alwgl"]
+
+[sub_resource type="GDScript" id="GDScript_oijry"]
+script/source = "extends Node2D
+
+@export var Noise_height_text : NoiseTexture2D
+var noise : Noise
+var width : int = 100
+var height : int = 100
+var noise_val_arr = []
+@onready var node = $\".\"
+@onready var Tileemap = $TileMapLayer
+var sourceid = 0 #I dont know what this is yet
+var water_atlas = Vector2i(7, 0) #huh
+var land_atlas = Vector2i(1, 1) #its 11:30 pm and I have to wake up at 7 am :D
+var new_atlas = Vector2i(3, 1)
+#I begin to understand the 3 lines before this comment
+func _ready() -> void:
+	noise = Noise_height_text.noise
+	gen_world()
+func gen_world():
+	for x in range(-width/2, width/2):
+		for y in range(-height/2, height/2):
+			var noise_val = noise.get_noise_2d(x, y)
+			if noise_val >= 0.25:
+				Tileemap.set_cell(Vector2(x, y), sourceid, new_atlas)
+			elif noise_val >= 0.0:
+				Tileemap.set_cell(Vector2(x, y), sourceid, land_atlas)
+			else:
+				Tileemap.set_cell(Vector2(x, y), sourceid, water_atlas)
+func _on_timer_timeout() -> void:
+	gen_world()
+	print(\"New world\")
+"
+
+[sub_resource type="FastNoiseLite" id="FastNoiseLite_kcdho"]
+seed = -120
+
+[sub_resource type="NoiseTexture2D" id="NoiseTexture2D_o6yis"]
+noise = SubResource("FastNoiseLite_kcdho")
+
+[node name="Node2D" type="Node2D"]
+script = SubResource("GDScript_oijry")
+Noise_height_text = SubResource("NoiseTexture2D_o6yis")
+
+[node name="TileMapLayer" type="TileMapLayer" parent="."]
+tile_set = ExtResource("2_alwgl")
+
+[node name="Timer" type="Timer" parent="TileMapLayer"]
+wait_time = 3.0
+autostart = true
+
+[node name="Camera2D" type="Camera2D" parent="."]
+
+[connection signal="timeout" from="TileMapLayer/Timer" to="." method="_on_timer_timeout"]
